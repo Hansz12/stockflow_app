@@ -198,6 +198,7 @@ class _CustomerShopScreenState extends State<CustomerShopScreen> {
           final qty = _cart[item.id] ?? 0;
           return Card(
             elevation: 2,
+            // ignore: deprecated_member_use
             shadowColor: Colors.black.withOpacity(0.05),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             margin: const EdgeInsets.only(bottom: 12),

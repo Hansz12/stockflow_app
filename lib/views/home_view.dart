@@ -42,6 +42,7 @@ class HomeView extends StatelessWidget {
              decoration: BoxDecoration(
                color: Colors.white,
                borderRadius: BorderRadius.circular(16),
+               // ignore: deprecated_member_use
                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
              ),
              child: ListTile(
@@ -66,7 +67,9 @@ class HomeView extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
+        // ignore: deprecated_member_use
         boxShadow: [BoxShadow(color: color.withOpacity(0.05), blurRadius: 10, offset: const Offset(0,4))],
+        // ignore: deprecated_member_use
         border: Border.all(color: color.withOpacity(0.1)),
       ),
       child: Column(
@@ -74,12 +77,13 @@ class HomeView extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(12),
+            // ignore: deprecated_member_use
             decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
             child: Icon(icon, size: 28, color: color),
           ),
           const SizedBox(height: 12),
           Text(title, style: TextStyle(color: Colors.grey.shade500, fontSize: 13, fontWeight: FontWeight.w500)),
-          Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Colors.black87)),
+          Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Colors.black87)),
         ],
       ),
     );

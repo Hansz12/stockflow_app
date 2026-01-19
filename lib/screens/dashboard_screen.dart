@@ -80,6 +80,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
+          // ignore: deprecated_member_use
           boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
         ),
         child: BottomNavigationBar(
@@ -151,6 +152,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
       )),
       selected: isSelected,
+      // ignore: deprecated_member_use
       selectedTileColor: kPrimaryColor.withOpacity(0.05),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
       onTap: () {
@@ -187,6 +189,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           decoration: BoxDecoration(
             color: isActive ? kPrimaryColor : Colors.grey.shade100,
             borderRadius: BorderRadius.circular(12),
+            // ignore: deprecated_member_use
             boxShadow: isActive ? [BoxShadow(color: kPrimaryColor.withOpacity(0.3), blurRadius: 4, offset: const Offset(0, 2))] : [],
           ),
           child: Text(

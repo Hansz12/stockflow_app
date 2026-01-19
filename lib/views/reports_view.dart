@@ -19,6 +19,7 @@ class ReportsView extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white, 
               shape: BoxShape.circle, 
+              // ignore: deprecated_member_use
               boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10))]
             ),
             child: Icon(Icons.bar_chart_rounded, size: 64, color: Colors.blue.shade200),

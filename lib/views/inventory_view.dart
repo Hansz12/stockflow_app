@@ -43,6 +43,7 @@ class _InventoryCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        // ignore: deprecated_member_use
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Padding(
@@ -54,6 +55,7 @@ class _InventoryCard extends StatelessWidget {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
+                // ignore: deprecated_member_use
                 color: statusColor.withOpacity(0.1), 
                 borderRadius: BorderRadius.circular(12)
               ),
@@ -75,6 +77,7 @@ class _InventoryCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
+                          // ignore: deprecated_member_use
                           color: statusColor.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(4)
                         ),

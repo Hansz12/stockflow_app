@@ -16,6 +16,7 @@ class ProfileView extends StatelessWidget {
             decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white),
             child: CircleAvatar(
               radius: 50,
+              // ignore: deprecated_member_use
               backgroundColor: kPrimaryColor.withOpacity(0.1),
               child: const Icon(Icons.person, size: 50, color: kPrimaryColor),
             ),
@@ -24,10 +25,10 @@ class ProfileView extends StatelessWidget {
           const Text('John Doe', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
           Text('Business Owner', style: TextStyle(color: Colors.grey.shade500, fontWeight: FontWeight.w500)),
           const SizedBox(height: 32),
-          _ProfileItem(icon: Icons.badge_outlined, label: 'Business ID', value: kInternalBusinessId),
-          _ProfileItem(icon: Icons.email_outlined, label: 'Email', value: 'john@stockflow.com'),
-          _ProfileItem(icon: Icons.phone_outlined, label: 'Phone', value: '+60 12-345 6789'),
-          _ProfileItem(icon: Icons.location_on_outlined, label: 'Location', value: 'Selangor, Malaysia'),
+          const _ProfileItem(icon: Icons.badge_outlined, label: 'Business ID', value: kInternalBusinessId),
+          const _ProfileItem(icon: Icons.email_outlined, label: 'Email', value: 'john@stockflow.com'),
+          const _ProfileItem(icon: Icons.phone_outlined, label: 'Phone', value: '+60 12-345 6789'),
+          const _ProfileItem(icon: Icons.location_on_outlined, label: 'Location', value: 'Selangor, Malaysia'),
         ],
       ),
     );

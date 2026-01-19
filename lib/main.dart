@@ -8,7 +8,7 @@ import 'screens/role_switcher.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // TODO: Replace with your actual Supabase keys
+
   await Supabase.initialize(
     url: 'https://xlyqczdgagzuyacwomqh.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhseXFjemRnYWd6dXlhY3dvbXFoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg4MDExOTgsImV4cCI6MjA4NDM3NzE5OH0.yjeDBpPY1_UooZzFoO3P7l8CXpnLRHgJb-n3ZmxEhsg',

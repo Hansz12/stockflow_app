@@ -55,6 +55,7 @@ class _OrderCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        // ignore: deprecated_member_use
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Padding(
@@ -65,10 +66,11 @@ class _OrderCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('#${order.id.substring(order.id.length - 6)}', style: TextStyle(fontWeight: FontWeight.bold, color: kPrimaryColor)),
+                Text('#${order.id.substring(order.id.length - 6)}', style: const TextStyle(fontWeight: FontWeight.bold, color: kPrimaryColor)),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
                     color: kPrimaryColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(6)
                   ),
