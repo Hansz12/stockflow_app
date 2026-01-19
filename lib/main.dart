@@ -1,121 +1,184 @@
+// main.dart
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:google_fonts/google_fonts.dart'; // REQUIRED: Add to pubspec
+import 'models.dart';
+import 'screens/role_switcher.dart';
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // TODO: Replace with your actual Supabase keys
+  await Supabase.initialize(
+    url: 'https://xlyqczdgagzuyacwomqh.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhseXFjemRnYWd6dXlhY3dvbXFoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg4MDExOTgsImV4cCI6MjA4NDM3NzE5OH0.yjeDBpPY1_UooZzFoO3P7l8CXpnLRHgJb-n3ZmxEhsg',
+  );
+
+  runApp(const SupplierApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+// Global State
+class GlobalAppState extends InheritedWidget {
+  final List<Order> orders;
+  final List<InventoryItem> inventory;
+  final bool isLoading;
+  final Function(Order) addOrder;
+  final Function(String, OrderStatus) updateOrderStatus;
+  final Function(String, double) updateStock;
 
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
+  const GlobalAppState({
+    super.key,
+    required this.orders,
+    required this.inventory,
+    required this.isLoading,
+    required this.addOrder,
+    required this.updateOrderStatus,
+    required this.updateStock,
+    required super.child,
+  });
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  static GlobalAppState of(BuildContext context) {
+    final result = context.dependOnInheritedWidgetOfExactType<GlobalAppState>();
+    assert(result != null, 'No GlobalAppState found in context');
+    return result!;
   }
 
   @override
+  bool updateShouldNotify(GlobalAppState oldWidget) {
+    return orders != oldWidget.orders || 
+           inventory != oldWidget.inventory ||
+           isLoading != oldWidget.isLoading;
+  }
+}
+
+class SupplierApp extends StatefulWidget {
+  const SupplierApp({super.key});
+
+  @override
+  State<SupplierApp> createState() => _SupplierAppState();
+}
+
+class _SupplierAppState extends State<SupplierApp> {
+  final _supabase = Supabase.instance.client;
+  
+  List<Order> _orders = [];
+  List<InventoryItem> _inventory = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    try {
+      setState(() => _isLoading = true);
+      
+      final inventoryData = await _supabase.from('inventory').select().order('name', ascending: true);
+      final fetchedInventory = (inventoryData as List).map((i) => InventoryItem.fromJson(i)).toList();
+
+      final ordersData = await _supabase.from('orders').select('*, order_items(*)').order('date', ascending: false);
+      final fetchedOrders = (ordersData as List).map((o) => Order.fromJson(o)).toList();
+
+      setState(() {
+        _inventory = fetchedInventory;
+        _orders = fetchedOrders;
+        _isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('Error fetching data: $e');
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _addOrder(Order order) async {
+    try {
+      setState(() => _orders.insert(0, order));
+
+      await _supabase.from('orders').insert({
+        'id': order.id,
+        'customer_name': order.customerName,
+        'date': order.date.toIso8601String(),
+        'status': order.status.name,
+        'total_amount': order.totalAmount,
+      });
+
+      for (var item in order.items) {
+        await _supabase.from('order_items').insert(item.toJson(order.id));
+      }
+    } catch (e) {
+      debugPrint('Error adding order: $e');
+    }
+  }
+
+  Future<void> _updateOrderStatus(String id, OrderStatus newStatus) async {
+    try {
+      setState(() {
+        final index = _orders.indexWhere((o) => o.id == id);
+        if (index != -1) _orders[index].status = newStatus;
+      });
+
+      await _supabase.from('orders').update({'status': newStatus.name}).eq('id', id);
+    } catch (e) {
+      debugPrint('Error updating status: $e');
+    }
+  }
+
+  Future<void> _updateStock(String id, double change) async {
+    try {
+      final index = _inventory.indexWhere((item) => item.id == id);
+      if (index == -1) return;
+
+      double currentStock = _inventory[index].stock;
+      double newStock = (currentStock + change).clamp(0, 9999);
+
+      setState(() {
+        _inventory[index].stock = newStock;
+      });
+
+      await _supabase.from('inventory').update({'stock': newStock}).eq('id', id);
+    } catch (e) {
+      debugPrint('Error updating stock: $e');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
-          children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+    return GlobalAppState(
+      orders: _orders,
+      inventory: _inventory,
+      isLoading: _isLoading,
+      addOrder: _addOrder,
+      updateOrderStatus: _updateOrderStatus,
+      updateStock: _updateStock,
+      child: MaterialApp(
+        title: 'StockFlow',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          // --- THEME & FONT SETTINGS ---
+          primaryColor: kPrimaryColor,
+          scaffoldBackgroundColor: kBackgroundColor,
+          colorScheme: ColorScheme.fromSwatch().copyWith(
+            primary: kPrimaryColor,
+            secondary: Colors.tealAccent,
+            surface: Colors.white,
+          ),
+          // Using Poppins for that "Cute & Formal" look
+          textTheme: GoogleFonts.poppinsTextTheme(),
+          appBarTheme: AppBarTheme(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black87,
+            elevation: 0,
+            titleTextStyle: GoogleFonts.poppins(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87
             ),
-          ],
+          ),
+          useMaterial3: true,
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        home: const RoleSwitcher(),
       ),
     );
   }
